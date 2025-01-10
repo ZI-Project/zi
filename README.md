@@ -15,5 +15,5 @@ git clone https://github.com/CoolPuppyKid/zi.git
 ```bash
 cd zi
 zig build -Doptimize=ReleaseFast
-./zi
+./zig-out/bin/zi
 ```
