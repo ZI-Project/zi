@@ -1,49 +1,41 @@
 // purpose: setup the base for the shell
 const std = @import("std");
+const exit = @import("commands/exit.zig");
+const cd = @import("commands/cd.zig");
+const marker = @import("utils/marker.zig");
 const stdin = std.io.getStdIn().reader();
 const stdout = std.io.getStdOut().writer();
 const allocater = std.heap.page_allocator;
 const ChildProcess = std.process.Child;
 
 pub fn shell() !void {
-    try printShellMarker();
+    try marker.printShellMarker();
     while (true) {
         const input: []u8 = try stdin.readUntilDelimiterAlloc(allocater, '\n', 10000);
         defer allocater.free(input);
 
         if (input.len == 0) {
-            try printShellMarker();
+            try marker.printShellMarker();
             continue;
         }
 
         if (std.mem.eql(u8, input, "exit")) {
             // RELEASE ME
-            std.process.exit(0);
+            try exit.exit();
         }
 
-        execute(input) catch {
-            try stdout.print("Error most likely a invalid command\n", .{});
-            try printShellMarker();
-        };
+        if (std.mem.count(u8, input, "cd") > 0) {
+            cd.cd(input) catch {
+                try stdout.print("Error most likely my bad coding\n", .{});
+                try marker.printShellMarker();
+            };
+        } else {
+            execute(input) catch {
+                try stdout.print("Error most likely a invalid command\n", .{});
+                try marker.printShellMarker();
+            };
+        }
     }
-}
-
-pub fn printShellMarker() !void {
-    try printShellMarkDir();
-    try stdout.print("zi> ", .{});
-}
-
-pub fn printShellMarkDir() !void {
-    const cwd = try std.fs.cwd().realpathAlloc(allocater, ".");
-    var splitCWD = std.mem.split(u8, cwd, "/");
-
-    var topPathName: ?[]const u8 = undefined;
-
-    while (splitCWD.next()) |split| {
-        topPathName = split;
-    }
-
-    try stdout.print("[{s}] ", .{topPathName.?});
 }
 
 // questionable coding will happen here
@@ -64,5 +56,5 @@ pub fn execute(input: []u8) !void {
     _ = try cmd.spawn();
     _ = try cmd.wait();
 
-    try printShellMarker();
+    try marker.printShellMarker();
 }
