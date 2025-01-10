@@ -1,0 +1,2 @@
+# zi
+A Zig Shell
