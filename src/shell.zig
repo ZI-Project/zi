@@ -25,8 +25,8 @@ pub fn shell() !void {
         }
 
         if (std.mem.count(u8, input, "cd") > 0) {
-            cd.cd(input) catch {
-                try stdout.print("Error most likely my bad coding\n", .{});
+            cd.cd(input) catch |err| {
+                try stdout.print("Unknown Error {}", .{err});
                 try marker.printShellMarker();
             };
         } else {

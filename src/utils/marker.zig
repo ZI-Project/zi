@@ -18,5 +18,8 @@ fn printShellMarkDir() !void {
         topPathName = split;
     }
 
+    if (topPathName.?.len == 0) {
+        topPathName = "/";
+    }
     try stdout.print("[{s}] ", .{topPathName.?});
 }
