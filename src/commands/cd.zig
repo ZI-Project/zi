@@ -20,7 +20,16 @@ pub fn cd(input: []u8) !void {
             defer parent_dir.close();
 
             try parent_dir.setAsCwd();
-            try marker.printShellMarker();
+        } else if (std.mem.eql(u8, arg, "~")) {
+            const cwd = try std.fs.cwd().realpathAlloc(allocater, ".");
+            defer allocater.free(cwd);
+
+            const homeDir = try std.process.getEnvVarOwned(allocater, "HOME");
+            var dir = try std.fs.cwd().openDir(homeDir, .{});
+
+            defer dir.close();
+
+            try dir.setAsCwd();
         } else {
             const cwd = try std.fs.cwd().realpathAlloc(allocater, ".");
             defer allocater.free(cwd);
@@ -30,9 +39,9 @@ pub fn cd(input: []u8) !void {
             defer dir.close();
 
             try dir.setAsCwd();
-            try marker.printShellMarker();
         }
     }
+    try marker.printShellMarker();
 }
 
 fn getParentDir(dir: []const u8) []const u8 {
