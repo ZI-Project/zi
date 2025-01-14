@@ -1,5 +1,6 @@
 // purpose: provide functions for config support
 const std = @import("std");
+const file = @import("file.zig");
 const allocater = std.heap.page_allocator;
 const stdout = std.io.getStdOut().writer();
 
@@ -17,27 +18,16 @@ pub fn init() !void {
     defer allocater.free(homeDir);
 
     _ = std.fs.cwd().makeDir(ziDir) catch {};
-    if (!try fileExists(configDir)) {
+    if (!try file.fileExists(configDir)) {
         try writeDefaultConfig(configDir);
     }
 }
 
 fn writeDefaultConfig(path: []const u8) !void {
-    var file = try std.fs.cwd().createFile(path, .{});
-    defer file.close();
+    var confFile = try std.fs.cwd().createFile(path, .{});
+    defer confFile.close();
 
     const defaultConfig = "@defaultPWD = $HOME";
 
-    try file.writeAll(defaultConfig);
-}
-
-// this will and should be moved to a file named file.zig if anything that is not config.zig uses it
-fn fileExists(path: []const u8) !bool {
-    // https://nofmal.github.io/zig-with-example/file/ kinda stolen from here lol
-    const file = std.fs.cwd().openFile(path, .{}) catch |err| switch (err) {
-        error.FileNotFound => return false,
-        else => return err,
-    };
-    defer file.close();
-    return true;
+    try confFile.writeAll(defaultConfig);
 }
