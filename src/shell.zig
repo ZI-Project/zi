@@ -10,14 +10,14 @@ const stdout = std.io.getStdOut().writer();
 const allocater = std.heap.page_allocator;
 
 pub fn shell() !void {
-    try marker.printShellMarker();
-    try config.init();
+    try config.init(allocater);
+    try marker.printShellMarker(allocater);
     while (true) {
         const input: []u8 = try stdin.readUntilDelimiterAlloc(allocater, '\n', 10000);
         defer allocater.free(input);
 
         if (input.len == 0) {
-            try marker.printShellMarker();
+            try marker.printShellMarker(allocater);
             continue;
         }
 
@@ -27,14 +27,14 @@ pub fn shell() !void {
         }
 
         if (std.mem.count(u8, input, "cd") > 0) {
-            cd.cd(input) catch |err| {
+            cd.cd(input, allocater) catch |err| {
                 try stdout.print("Unknown Error: {}\n", .{err});
-                try marker.printShellMarker();
+                try marker.printShellMarker(allocater);
             };
         } else {
-            execute.execute(input) catch {
+            execute.execute(input, allocater, true) catch {
                 try stdout.print("Error most likely a invalid command\n", .{});
-                try marker.printShellMarker();
+                try marker.printShellMarker(allocater);
             };
         }
     }

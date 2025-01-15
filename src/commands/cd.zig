@@ -2,9 +2,10 @@
 const std = @import("std");
 const marker = @import("../utils/marker.zig");
 const stdout = std.io.getStdOut().writer();
-const allocater = std.heap.page_allocator;
 
-pub fn cd(input: []u8) !void {
+var defaultPWD: []const u8 = "/home";
+
+pub fn cd(input: []u8, allocater: std.mem.Allocator) !void {
     var args = std.mem.split(u8, input, " ");
     while (args.next()) |arg| {
         if (std.mem.eql(u8, arg, "cd")) {
@@ -21,19 +22,28 @@ pub fn cd(input: []u8) !void {
 
             try parent_dir.setAsCwd();
         } else if (std.mem.eql(u8, arg, "~")) {
-            const cwd = try std.fs.cwd().realpathAlloc(allocater, ".");
-            defer allocater.free(cwd);
-
-            const homeDir = try std.process.getEnvVarOwned(allocater, "HOME");
+            const homeDir = defaultPWD;
             var dir = try std.fs.cwd().openDir(homeDir, .{});
 
             defer dir.close();
 
             try dir.setAsCwd();
-        } else {
-            const cwd = try std.fs.cwd().realpathAlloc(allocater, ".");
-            defer allocater.free(cwd);
+        } else if (std.mem.count(u8, arg, "$") > 0) {
+            const indexOfVarMarker: ?usize = std.mem.indexOf(u8, arg, "$");
+            if (indexOfVarMarker == null) {
+                return error.NoVarSet;
+            }
+            const envVarKey = arg[indexOfVarMarker.? + 1 ..];
+            const envVar: []u8 = std.process.getEnvVarOwned(allocater, envVarKey) catch {
+                return error.InvalidVar;
+            };
 
+            var dir = try std.fs.cwd().openDir(envVar, .{});
+
+            defer dir.close();
+
+            try dir.setAsCwd();
+        } else {
             var dir = try std.fs.cwd().openDir(arg, .{});
 
             defer dir.close();
@@ -41,7 +51,7 @@ pub fn cd(input: []u8) !void {
             try dir.setAsCwd();
         }
     }
-    try marker.printShellMarker();
+    try marker.printShellMarker(allocater);
 }
 
 fn getParentDir(dir: []const u8) []const u8 {
@@ -50,4 +60,13 @@ fn getParentDir(dir: []const u8) []const u8 {
         return "/";
     }
     return dir[0..last_delimiter.?];
+}
+
+pub fn setDefaultPWD(pwd: []const u8) !void {
+    defaultPWD = pwd;
+    var dir = try std.fs.cwd().openDir(defaultPWD, .{});
+
+    defer dir.close();
+
+    try dir.setAsCwd();
 }
