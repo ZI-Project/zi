@@ -5,7 +5,7 @@ const stdout = std.io.getStdOut().writer();
 
 var defaultPWD: []const u8 = "/home";
 
-pub fn cd(input: []u8, allocater: std.mem.Allocator) !void {
+pub fn cd(input: []u8, allocater: std.mem.Allocator, printMarker: bool) !void {
     var args = std.mem.split(u8, input, " ");
     while (args.next()) |arg| {
         if (std.mem.eql(u8, arg, "cd")) {
@@ -51,7 +51,9 @@ pub fn cd(input: []u8, allocater: std.mem.Allocator) !void {
             try dir.setAsCwd();
         }
     }
-    try marker.printShellMarker(allocater);
+    if (printMarker) {
+        try marker.printShellMarker(allocater);
+    }
 }
 
 fn getParentDir(dir: []const u8) []const u8 {

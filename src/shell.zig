@@ -27,7 +27,7 @@ pub fn shell() !void {
         }
 
         if (std.mem.count(u8, input, "cd") > 0) {
-            cd.cd(input, allocater) catch |err| {
+            cd.cd(input, allocater, true) catch |err| {
                 try stdout.print("Unknown Error: {}\n", .{err});
                 try marker.printShellMarker(allocater);
             };

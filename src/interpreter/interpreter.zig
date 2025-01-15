@@ -3,6 +3,7 @@ const std = @import("std");
 const ArrayList = std.ArrayList;
 const stdout = std.io.getStdOut().writer();
 const cd = @import("../commands/cd.zig");
+const exit = @import("../commands/exit.zig");
 const execute = @import("../utils/execute.zig");
 const marker = @import("../utils/marker.zig");
 const file = @import("../utils/file.zig");
@@ -32,7 +33,13 @@ pub fn runZiFile(path: []const u8, allocater: std.mem.Allocator) !u8 {
     }
     var i: u8 = 0;
     while (i <= lineList.items.len - 1) : (i += 1) {
-        execute.execute(@constCast(lineList.items[i]), allocater, false) catch {};
+        if (std.mem.count(u8, lineList.items[i], "cd") == 1) {
+            cd.cd(@constCast(lineList.items[i]), allocater, false) catch {};
+        } else if (std.mem.count(u8, lineList.items[i], "exit") == 1) {
+            try exit.exit();
+        } else {
+            execute.execute(@constCast(lineList.items[i]), allocater, false) catch {};
+        }
     }
     i = 0;
     while (i <= tokenList.items.len - 1) : (i += 1) {
