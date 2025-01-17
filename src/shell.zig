@@ -5,6 +5,7 @@ const cd = @import("commands/cd.zig");
 const marker = @import("utils/marker.zig");
 const config = @import("utils/config.zig");
 const execute = @import("utils/execute.zig");
+const help = @import("commands/help.zig");
 const allocater = std.heap.page_allocator;
 
 pub fn shell() !void {
@@ -31,6 +32,8 @@ pub fn shell() !void {
                 try stdout.print("Unknown Error: {}\n", .{err});
                 try marker.printShellMarker(allocater);
             };
+        } else if (std.mem.eql(u8, input, "help")) {
+            try help.help(allocater);
         } else {
             execute.execute(input, allocater, true) catch {
                 try stdout.print("Error most likely a invalid command\n", .{});
