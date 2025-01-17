@@ -18,9 +18,11 @@ pub fn fileWrite(path: []const u8, data: []const u8) !void {
     try file.writeAll(data);
 }
 
-pub fn fileReadAll(path: []const u8) ![]u8 {
-    var buffer: [90000]u8 = undefined;
-    const file = try std.fs.cwd().readFile(path, &buffer);
+pub fn fileReadAll(path: []const u8, allocater: std.mem.Allocator) ![]u8 {
+    const file = try std.fs.cwd().openFile(path, .{});
+    defer file.close();
 
-    return file;
+    const out = try file.readToEndAlloc(allocater, 1000000);
+
+    return out;
 }
