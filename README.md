@@ -1,10 +1,23 @@
+
+![Zi-Logo](https://github.com/user-attachments/assets/9aa65698-f9ed-482b-8c8b-94142239245e)
 # zi
-A Zig Shell
 
 # Compiling from source:
 
 ## Requirements:
 * zig
+
+Arch Linux:
+``sudo pacman -S zig``
+
+Mac OS:
+``brew install zig``
+
+Fedora:
+``dnf install zig``
+
+Gentoo:
+``emerge -av dev-lang/zig``
 
 ## Step 1.
 Clone this repo:
