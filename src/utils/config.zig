@@ -11,6 +11,8 @@ pub fn init(allocater: std.mem.Allocator) !void {
     const ziDir = try std.fs.path.join(allocater, &[_][]const u8{ configDot, "zi" });
     const configDir = try std.fs.path.join(allocater, &[_][]const u8{ ziDir, "rc.zi" });
 
+    _ = std.fs.cwd().makeDir(configDot) catch {};
+
     defer {
         allocater.free(configDir);
         allocater.free(ziDir);

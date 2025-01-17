@@ -53,6 +53,21 @@ pub fn runZiFile(path: []const u8, allocater: std.mem.Allocator) !u8 {
             } else {
                 try cd.setDefaultPWD(tokenList.items[2]);
             }
+        } else if (std.mem.count(u8, line, "@shorten" > 0)) {
+            var tokens = std.mem.split(u8, line, " ");
+            var tokenList = ArrayList([]const u8).init(allocater);
+            defer tokenList.deinit();
+
+            while (tokens.next()) |token| {
+                tokenList.append(token);
+            }
+
+            if (tokenList.items.len == 1 or !std.mem.eql(u8, tokenList.items[1], "=")) {
+                try stdout.print("zi interpreter error:\n\nexpected: = after: {s}\n\n", .{tokenList.items[0]});
+                return 1;
+            }
+
+            // TODO: finish this because its very complicated/
         } else if (std.mem.eql(u8, line, "")) {
             continue;
         } else {

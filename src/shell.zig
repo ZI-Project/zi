@@ -6,6 +6,7 @@ const marker = @import("utils/marker.zig");
 const config = @import("utils/config.zig");
 const execute = @import("utils/execute.zig");
 const help = @import("commands/help.zig");
+const history = @import("utils/history.zig");
 const interpreter = @import("interpreter/interpreter.zig");
 const process = std.process;
 const ArrayList = std.ArrayList;
@@ -31,6 +32,7 @@ pub fn shell() !void {
     }
 
     try config.init(allocater);
+    try history.initHistory(allocater);
     try marker.printShellMarker(allocater);
     while (true) {
         const input: []u8 = try stdin.readUntilDelimiterAlloc(allocater, '\n', 10000);
