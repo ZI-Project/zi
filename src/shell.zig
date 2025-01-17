@@ -6,11 +6,30 @@ const marker = @import("utils/marker.zig");
 const config = @import("utils/config.zig");
 const execute = @import("utils/execute.zig");
 const help = @import("commands/help.zig");
+const interpreter = @import("interpreter/interpreter.zig");
+const process = std.process;
+const ArrayList = std.ArrayList;
 const allocater = std.heap.page_allocator;
 
 pub fn shell() !void {
     const stdin = std.io.getStdIn().reader();
     const stdout = std.io.getStdOut().writer();
+
+    var args = std.process.args();
+    var argsList = ArrayList([]const u8).init(allocater);
+    defer argsList.deinit();
+
+    while (args.next()) |arg| {
+        try argsList.append(arg);
+    }
+
+    if (argsList.items.len >= 2) {
+        if (try interpreter.runZiFile(argsList.items[1], allocater) > 0) {
+            try stdout.print("following errors above occurred in file: {s}\n", .{argsList.items[1]});
+        }
+        try exit.exit();
+    }
+
     try config.init(allocater);
     try marker.printShellMarker(allocater);
     while (true) {
