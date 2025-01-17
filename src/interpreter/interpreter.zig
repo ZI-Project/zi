@@ -25,7 +25,7 @@ pub fn runZiFile(path: []const u8, allocater: std.mem.Allocator) !u8 {
             try exit.exit();
         } else if (std.mem.count(u8, line, "cd") > 0) {
             cd.cd(@constCast(line), allocater, false) catch |err| {
-                try stdout.print("command: cd returned: zi interpreter error: {}", .{err});
+                try stdout.print("zi interpreter error:\n\ncd returned: {}\n\n", .{err});
             };
         } else if (std.mem.count(u8, line, "@defaultPWD") > 0) {
             var tokens = std.mem.split(u8, line, " ");
@@ -36,15 +36,15 @@ pub fn runZiFile(path: []const u8, allocater: std.mem.Allocator) !u8 {
                 try tokenList.append(token);
             }
 
-            if (!std.mem.eql(u8, tokenList.items[1], "=")) {
-                try stdout.print("zi interpreter error: expected = after {s}", .{tokenList.items[0]});
+            if (tokenList.items.len == 1 or !std.mem.eql(u8, tokenList.items[1], "=")) {
+                try stdout.print("zi interpreter error:\n\nexpected: = after: {s}\n\n", .{tokenList.items[0]});
                 return 1;
             }
 
             if (std.mem.count(u8, tokenList.items[2], "$") > 0) {
                 const indexOfVarMarker: ?usize = std.mem.indexOf(u8, tokenList.items[2], "$");
                 if (indexOfVarMarker == null) {
-                    try stdout.print("zi interpreter error: im as clueless as you please make a github issue and attach the zi file", .{});
+                    try stdout.print("zi interpreter error:\n\n im as clueless as you please make a github issue and attach the zi file\n\n", .{});
                     return 1;
                 }
                 const envVarKey = tokenList.items[2][indexOfVarMarker.? + 1 ..];
@@ -57,7 +57,7 @@ pub fn runZiFile(path: []const u8, allocater: std.mem.Allocator) !u8 {
             continue;
         } else {
             execute.execute(@constCast(line), allocater, false) catch |err| {
-                try stdout.print("command: {s} returned: zi interpreter error: {}", .{ line, err });
+                try stdout.print("zi interpreter error:\n\nexecuted: {s} and it returned {}\n\n", .{ line, err });
             };
         }
     }
