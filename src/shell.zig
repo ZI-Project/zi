@@ -5,11 +5,11 @@ const cd = @import("commands/cd.zig");
 const marker = @import("utils/marker.zig");
 const config = @import("utils/config.zig");
 const execute = @import("utils/execute.zig");
-const stdin = std.io.getStdIn().reader();
-const stdout = std.io.getStdOut().writer();
 const allocater = std.heap.page_allocator;
 
 pub fn shell() !void {
+    const stdin = std.io.getStdIn().reader();
+    const stdout = std.io.getStdOut().writer();
     try config.init(allocater);
     try marker.printShellMarker(allocater);
     while (true) {

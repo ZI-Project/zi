@@ -1,7 +1,6 @@
 // purpose: implements the cd command
 const std = @import("std");
 const marker = @import("../utils/marker.zig");
-const stdout = std.io.getStdOut().writer();
 
 var defaultPWD: []const u8 = "/home";
 

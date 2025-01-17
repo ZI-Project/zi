@@ -2,13 +2,15 @@
 const std = @import("std");
 const file = @import("file.zig");
 const interpreter = @import("../interpreter/interpreter.zig");
-const stdout = std.io.getStdOut().writer();
 
 pub fn init(allocater: std.mem.Allocator) !void {
+    const stdout = std.io.getStdOut().writer();
+
     const homeDir = try std.process.getEnvVarOwned(allocater, "HOME");
     const configDot = try std.fs.path.join(allocater, &[_][]const u8{ homeDir, ".config" });
     const ziDir = try std.fs.path.join(allocater, &[_][]const u8{ configDot, "zi" });
     const configDir = try std.fs.path.join(allocater, &[_][]const u8{ ziDir, "rc.zi" });
+
     defer {
         allocater.free(configDir);
         allocater.free(ziDir);
