@@ -1,6 +1,6 @@
+![zi-banner-smol](https://github.com/user-attachments/assets/12cfa71b-721b-4a7e-84c7-159b8220b97a)
 
-![Zi-Logo](https://github.com/user-attachments/assets/9aa65698-f9ed-482b-8c8b-94142239245e)
-# zi
+banner made by [@Sophed](https://github.com/Sophed)
 
 # Compiling from source:
 
