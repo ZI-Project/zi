@@ -11,7 +11,7 @@ banner made by [@Sophed](https://github.com/Sophed)
 ## Features:
 * Interpreter to run .zi files
 * Easy to configure
-* Shell changers which are special commands that change propertys about the shell
+* Shell changers which are special commands that change properties about the shell
 * Basic shell commands like: ``cd``, ``help``, ``exit``
 
 # Compiling from source:
