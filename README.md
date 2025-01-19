@@ -2,6 +2,18 @@
 
 banner made by [@Sophed](https://github.com/Sophed)
 
+# About:
+
+**zi** is a non-POSIX shell written in zig
+
+**Docs can be found**: [Here](https://github.com/ZI-Project/zi/wiki)
+
+## Features:
+* Interpreter to run .zi files
+* Easy to configure
+* Shell changers which are special commands that change propertys about the shell
+* Basic shell commands like: ``cd``, ``help``, ``exit``
+
 # Compiling from source:
 
 ## Requirements:
