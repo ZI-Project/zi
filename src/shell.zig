@@ -10,9 +10,12 @@ const history = @import("utils/history.zig");
 const interpreter = @import("interpreter/interpreter.zig");
 const process = std.process;
 const ArrayList = std.ArrayList;
-const allocater = std.heap.page_allocator;
 
 pub fn shell() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+    const allocater = gpa.allocator();
+
     const stdin = std.io.getStdIn().reader();
     const stdout = std.io.getStdOut().writer();
 
