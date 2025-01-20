@@ -30,6 +30,7 @@ pub fn runZiFile(path: []const u8, allocater: std.mem.Allocator) !u8 {
         } else if (std.mem.count(u8, line, "@defaultPWD") > 0) {
             var tokens = std.mem.split(u8, line, " ");
             var tokenList = ArrayList([]const u8).init(allocater);
+
             defer tokenList.deinit();
 
             while (tokens.next()) |token| {
@@ -41,7 +42,7 @@ pub fn runZiFile(path: []const u8, allocater: std.mem.Allocator) !u8 {
                 return 1;
             }
 
-            if (std.mem.count(u8, tokenList.items[2], "$") > 0) {
+            if (tokenList.items.len == 3 and std.mem.count(u8, tokenList.items[2], "$") > 0) {
                 const indexOfVarMarker: ?usize = std.mem.indexOf(u8, tokenList.items[2], "$");
                 if (indexOfVarMarker == null) {
                     try stdout.print("zi interpreter error:\n\n im as clueless as you please make a github issue and attach the zi file\n\n", .{});
@@ -50,24 +51,12 @@ pub fn runZiFile(path: []const u8, allocater: std.mem.Allocator) !u8 {
                 const envVarKey = tokenList.items[2][indexOfVarMarker.? + 1 ..];
                 const envVar = try std.process.getEnvVarOwned(allocater, envVarKey);
                 try cd.setDefaultPWD(envVar);
-            } else {
+            } else if (tokenList.items.len == 3) {
                 try cd.setDefaultPWD(tokenList.items[2]);
-            }
-        } else if (std.mem.count(u8, line, "@shorten" > 0)) {
-            var tokens = std.mem.split(u8, line, " ");
-            var tokenList = ArrayList([]const u8).init(allocater);
-            defer tokenList.deinit();
-
-            while (tokens.next()) |token| {
-                tokenList.append(token);
-            }
-
-            if (tokenList.items.len == 1 or !std.mem.eql(u8, tokenList.items[1], "=")) {
-                try stdout.print("zi interpreter error:\n\nexpected: = after: {s}\n\n", .{tokenList.items[0]});
+            } else {
+                try stdout.print("zi interpreter error:\n\nexpected: (value) after: {s}\n\n", .{tokenList.items[1]});
                 return 1;
             }
-
-            // TODO: finish this because its very complicated/
         } else if (std.mem.eql(u8, line, "")) {
             continue;
         } else {

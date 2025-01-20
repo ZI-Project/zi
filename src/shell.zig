@@ -30,7 +30,6 @@ pub fn shell() !void {
         }
         try exit.exit();
     }
-
     try config.init(allocater);
     try history.initHistory(allocater);
     try marker.printShellMarker(allocater);
@@ -57,8 +56,7 @@ pub fn shell() !void {
             try help.help(allocater);
         } else {
             execute.execute(input, allocater, true) catch {
-                try stdout.print("Error most likely a invalid command\n", .{});
-                try marker.printShellMarker(allocater);
+                try stdout.print("Error Command Not Found", .{});
             };
         }
     }

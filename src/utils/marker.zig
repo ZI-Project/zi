@@ -4,7 +4,7 @@ const std = @import("std");
 pub fn printShellMarker(allocater: std.mem.Allocator) !void {
     const stdout = std.io.getStdOut().writer();
     try printShellMarkDir(allocater);
-    try stdout.print("zi> ", .{});
+    try stdout.print("zi~> ", .{});
 }
 
 fn printShellMarkDir(allocater: std.mem.Allocator) !void {

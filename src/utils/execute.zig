@@ -18,7 +18,16 @@ pub fn execute(input: []u8, allocater: std.mem.Allocator, useMarker: bool) !void
     cmd.stderr_behavior = .Inherit;
 
     try cmd.spawn();
-    _ = try cmd.wait();
+    _ = cmd.wait() catch |err| {
+        switch (err) {
+            error.FileNotFound => {
+                return error.CommandNotFound;
+            },
+            else => {
+                return err;
+            },
+        }
+    };
     if (useMarker) {
         try marker.printShellMarker(allocater);
     }
