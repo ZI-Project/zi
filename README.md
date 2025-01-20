@@ -1,6 +1,18 @@
+![zi-banner-smol](https://github.com/user-attachments/assets/12cfa71b-721b-4a7e-84c7-159b8220b97a)
 
-![Zi-Logo](https://github.com/user-attachments/assets/9aa65698-f9ed-482b-8c8b-94142239245e)
-# zi
+banner made by [@Sophed](https://github.com/Sophed)
+
+# About:
+
+**zi** is a non-POSIX shell written in zig
+
+**Docs can be found**: [Here](https://github.com/ZI-Project/zi/wiki)
+
+## Features:
+* Interpreter to run .zi files
+* Easy to configure
+* Shell changers which are special commands that change properties about the shell
+* Basic shell commands like: ``cd``, ``help``, ``exit``
 
 # Compiling from source:
 
