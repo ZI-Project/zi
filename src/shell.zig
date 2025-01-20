@@ -59,7 +59,8 @@ pub fn shell() !void {
             try help.help(allocater);
         } else {
             execute.execute(input, allocater, true) catch {
-                try stdout.print("Error Command Not Found", .{});
+                try stdout.print("Error Command Not Found\n", .{});
+                try marker.printShellMarker(allocater);
             };
         }
     }

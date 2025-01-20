@@ -57,6 +57,8 @@ pub fn runZiFile(path: []const u8, allocater: std.mem.Allocator) !u8 {
                 try stdout.print("zi interpreter error:\n\nexpected: (value) after: {s}\n\n", .{tokenList.items[1]});
                 return 1;
             }
+        } else if (line[0] == '#') {
+            continue;
         } else if (std.mem.eql(u8, line, "")) {
             continue;
         } else {
