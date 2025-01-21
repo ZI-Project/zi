@@ -16,6 +16,11 @@ pub fn shell() !void {
     defer _ = gpa.deinit();
     const allocater = gpa.allocator();
 
+    var envVars = std.StringHashMap([]u8).init(allocater);
+    defer {
+        envVars.deinit();
+    }
+
     const stdin = std.io.getStdIn().reader();
     const stdout = std.io.getStdOut().writer();
 
@@ -28,12 +33,13 @@ pub fn shell() !void {
     }
 
     if (argsList.items.len >= 2) {
-        if (try interpreter.runZiFile(argsList.items[1], allocater) > 0) {
+        if (try interpreter.runZiFile(argsList.items[1], allocater, &envVars) > 0) {
             try stdout.print("following errors above occurred in file: {s}\n", .{argsList.items[1]});
         }
         try exit.exit();
     }
-    try config.init(allocater);
+    try config.init(allocater, &envVars);
+
     try history.initHistory(allocater);
     try marker.printShellMarker(allocater);
     while (true) {
@@ -58,10 +64,14 @@ pub fn shell() !void {
         } else if (std.mem.eql(u8, input, "help")) {
             try help.help(allocater);
         } else {
-            execute.execute(input, allocater, true) catch {
+            execute.execute(input, allocater, true, &envVars) catch {
                 try stdout.print("Error Command Not Found\n", .{});
                 try marker.printShellMarker(allocater);
             };
         }
     }
+}
+
+fn append(list: *std.ArrayList(u32), val: u32) !void {
+    try list.append(val);
 }
