@@ -17,8 +17,10 @@ pub fn shell() !void {
     const allocater = gpa.allocator();
 
     var envVars = std.StringHashMap([]u8).init(allocater);
+    var shortens = std.StringHashMap([]u8).init(allocater);
     defer {
         envVars.deinit();
+        shortens.deinit();
     }
 
     const stdin = std.io.getStdIn().reader();
@@ -57,7 +59,7 @@ pub fn shell() !void {
         }
 
         if (std.mem.count(u8, input, "cd") > 0) {
-            cd.cd(input, allocater, true) catch |err| {
+            cd.cd(input, allocater, true, &envVars) catch |err| {
                 try stdout.print("Unknown Error: {}\n", .{err});
                 try marker.printShellMarker(allocater);
             };

@@ -24,7 +24,7 @@ pub fn runZiFile(path: []const u8, allocater: std.mem.Allocator, envVarMap: *std
         if (std.mem.startsWith(u8, line, "exit")) {
             try exit.exit();
         } else if (std.mem.startsWith(u8, line, "cd")) {
-            cd.cd(@constCast(line), allocater, false) catch |err| {
+            cd.cd(@constCast(line), allocater, false, envVarMap) catch |err| {
                 try stdout.print("zi interpreter error:\n\ncd returned: {}\n\n", .{err});
             };
         } else if (std.mem.startsWith(u8, line, "@defaultPWD")) {
@@ -58,6 +58,37 @@ pub fn runZiFile(path: []const u8, allocater: std.mem.Allocator, envVarMap: *std
             defer tokenList.deinit();
 
             const indexOfMarker: ?usize = std.mem.indexOf(u8, tokenList.items[0], "@set");
+            if (indexOfMarker == null) {
+                try stdout.print("zi interpreter error:\n\n unknown error please make a github issue with the .zi file attached\n\n", .{});
+                return 1;
+            }
+
+            if (tokenList.items.len == 1 or !std.mem.eql(u8, tokenList.items[1], "=")) {
+                try stdout.print("zi interpreter error:\n\nexpected: = after: {s}\n\n", .{tokenList.items[0]});
+                return 1;
+            }
+
+            if (tokenList.items.len < 3) {
+                try stdout.print("zi interpreter error:\n\nexpected: (value) after: =\n\n", .{});
+                return 1;
+            }
+
+            const newVarVal: []const u8 = tokenList.items[2];
+            const newVarKey: []const u8 = tokenList.items[0][indexOfMarker.? + 4 ..];
+
+            // btw this gets deallocated later
+            const clonedVarVal = try allocater.alloc(u8, newVarVal.len);
+            const clonedVarKey = try allocater.alloc(u8, newVarKey.len);
+            std.mem.copyForwards(u8, clonedVarVal, @constCast(newVarVal));
+            std.mem.copyForwards(u8, clonedVarKey, @constCast(newVarKey));
+
+            try envVarMap.put(clonedVarKey, clonedVarVal);
+        } else if (std.mem.startsWith(u8, line, "@shorten")) {
+            var tokenList = try tokenize(line, allocater);
+
+            defer tokenList.deinit();
+
+            const indexOfMarker: ?usize = std.mem.indexOf(u8, tokenList.items[0], "@shorten");
             if (indexOfMarker == null) {
                 try stdout.print("zi interpreter error:\n\n unknown error please make a github issue with the .zi file attached\n\n", .{});
                 return 1;

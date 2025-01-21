@@ -4,7 +4,7 @@ const marker = @import("../utils/marker.zig");
 
 var defaultPWD: []const u8 = "/home";
 
-pub fn cd(input: []u8, allocater: std.mem.Allocator, printMarker: bool) !void {
+pub fn cd(input: []u8, allocater: std.mem.Allocator, printMarker: bool, map: *std.StringHashMap([]u8)) !void {
     var args = std.mem.split(u8, input, " ");
     while (args.next()) |arg| {
         if (std.mem.eql(u8, arg, "cd")) {
@@ -28,16 +28,24 @@ pub fn cd(input: []u8, allocater: std.mem.Allocator, printMarker: bool) !void {
 
             try dir.setAsCwd();
         } else if (std.mem.count(u8, arg, "$") > 0) {
+            var envVar: ?[]const u8 = null;
             const indexOfVarMarker: ?usize = std.mem.indexOf(u8, arg, "$");
             if (indexOfVarMarker == null) {
-                return error.NoVarSet;
+                return error.CannotIndex;
             }
             const envVarKey = arg[indexOfVarMarker.? + 1 ..];
-            const envVar: []u8 = std.process.getEnvVarOwned(allocater, envVarKey) catch {
-                return error.InvalidVar;
-            };
+            if (std.process.getEnvVarOwned(allocater, envVarKey)) |val| {
+                envVar = val;
+            } else |err| {
+                if (err == std.process.GetEnvVarOwnedError.EnvironmentVariableNotFound) {
+                    envVar = map.get(envVarKey) orelse null;
+                }
+            }
 
-            var dir = try std.fs.cwd().openDir(envVar, .{});
+            if (envVar == null) {
+                return error.VarNotFound;
+            }
+            var dir = try std.fs.cwd().openDir(envVar.?, .{});
 
             defer dir.close();
 
@@ -68,6 +76,4 @@ pub fn setDefaultPWD(pwd: []const u8) !void {
     var dir = try std.fs.cwd().openDir(defaultPWD, .{});
 
     defer dir.close();
-
-    try dir.setAsCwd();
 }
