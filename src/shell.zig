@@ -35,12 +35,12 @@ pub fn shell() !void {
     }
 
     if (argsList.items.len >= 2) {
-        if (try interpreter.runZiFile(argsList.items[1], allocater, &envVars) > 0) {
+        if (try interpreter.runZiFile(argsList.items[1], allocater, &envVars, &shortens) > 0) {
             try stdout.print("following errors above occurred in file: {s}\n", .{argsList.items[1]});
         }
         try exit.exit();
     }
-    try config.init(allocater, &envVars);
+    try config.init(allocater, &envVars, &shortens);
 
     try history.initHistory(allocater);
     try marker.printShellMarker(allocater);
@@ -66,7 +66,13 @@ pub fn shell() !void {
         } else if (std.mem.eql(u8, input, "help")) {
             try help.help(allocater);
         } else {
-            execute.execute(input, allocater, true, &envVars) catch {
+            var execInput: ?[]const u8 = undefined;
+            if (shortens.get(input)) |val| {
+                execInput = val;
+            } else {
+                execInput = input;
+            }
+            execute.execute(@constCast(execInput.?), allocater, true, &envVars) catch {
                 try stdout.print("Error Command Not Found\n", .{});
                 try marker.printShellMarker(allocater);
             };

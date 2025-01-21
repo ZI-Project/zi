@@ -3,7 +3,7 @@ const std = @import("std");
 const file = @import("file.zig");
 const interpreter = @import("../interpreter/interpreter.zig");
 
-pub fn init(allocater: std.mem.Allocator, envVarList: *std.StringHashMap([]u8)) !void {
+pub fn init(allocater: std.mem.Allocator, envVarList: *std.StringHashMap([]u8), shortens: *std.StringHashMap([]u8)) !void {
     const stdout = std.io.getStdOut().writer();
 
     const homeDir = try std.process.getEnvVarOwned(allocater, "HOME");
@@ -23,10 +23,10 @@ pub fn init(allocater: std.mem.Allocator, envVarList: *std.StringHashMap([]u8)) 
 
     _ = std.fs.cwd().makeDir(ziDir) catch {};
     if (!try file.fileExists(configDir)) {
-        const defaultConfig = "@defaultPWD = $HOME\n";
+        const defaultConfig = "@defaultPWD = $HOME\n@shortenls = ls --color=auto\n";
         try file.fileWrite(configDir, defaultConfig);
     } else {
-        if (try interpreter.runZiFile(configDir, allocater, envVarList) > 0) {
+        if (try interpreter.runZiFile(configDir, allocater, envVarList, shortens) > 0) {
             try stdout.print("following errors above occurred in file: {s}\n", .{configDir});
         }
     }

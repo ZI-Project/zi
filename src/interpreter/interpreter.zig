@@ -7,8 +7,10 @@ const execute = @import("../utils/execute.zig");
 const marker = @import("../utils/marker.zig");
 const file = @import("../utils/file.zig");
 
+// @constCast is everywhere lol
+
 // the u8 is not a char it is return code
-pub fn runZiFile(path: []const u8, allocater: std.mem.Allocator, envVarMap: *std.StringHashMap([]u8)) !u8 {
+pub fn runZiFile(path: []const u8, allocater: std.mem.Allocator, envVarMap: *std.StringHashMap([]u8), shortens: *std.StringHashMap([]u8)) !u8 {
     const stdout = std.io.getStdOut().writer();
 
     if (!try file.fileExists(path)) {
@@ -104,16 +106,25 @@ pub fn runZiFile(path: []const u8, allocater: std.mem.Allocator, envVarMap: *std
                 return 1;
             }
 
-            const newVarVal: []const u8 = tokenList.items[2];
-            const newVarKey: []const u8 = tokenList.items[0][indexOfMarker.? + 4 ..];
+            var newShortenVal = ArrayList(u8).init(allocater);
+            defer newShortenVal.deinit();
+
+            const newShortenKey: []const u8 = tokenList.items[0][indexOfMarker.? + 8 ..];
+
+            for (tokenList.items[2..]) |item| {
+                if (!std.mem.eql(u8, tokenList.items[2], item)) {
+                    try newShortenVal.appendSlice(" ");
+                }
+                try newShortenVal.appendSlice(item);
+            }
 
             // btw this gets deallocated later
-            const clonedVarVal = try allocater.alloc(u8, newVarVal.len);
-            const clonedVarKey = try allocater.alloc(u8, newVarKey.len);
-            std.mem.copyForwards(u8, clonedVarVal, @constCast(newVarVal));
-            std.mem.copyForwards(u8, clonedVarKey, @constCast(newVarKey));
+            const clonedShortenVal = try allocater.alloc(u8, newShortenVal.items.len);
+            const clonedShortenKey = try allocater.alloc(u8, newShortenKey.len);
+            std.mem.copyForwards(u8, clonedShortenVal, @constCast(newShortenVal.items));
+            std.mem.copyForwards(u8, clonedShortenKey, @constCast(newShortenKey));
 
-            try envVarMap.put(clonedVarKey, clonedVarVal);
+            try shortens.put(clonedShortenKey, clonedShortenVal);
         } else if (std.mem.eql(u8, line, "")) {
             continue;
         } else if (line[0] == '#') {
