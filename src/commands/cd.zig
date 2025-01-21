@@ -7,6 +7,7 @@ var defaultPWD: []const u8 = "/home";
 pub fn cd(input: []u8, allocater: std.mem.Allocator, printMarker: bool, map: *std.StringHashMap([]u8)) !void {
     var args = std.mem.split(u8, input, " ");
     while (args.next()) |arg| {
+        try std.io.getStdOut().writer().print("{s}", .{arg});
         if (std.mem.eql(u8, arg, "cd")) {
             continue;
         } else if (std.mem.eql(u8, arg, "..")) {
