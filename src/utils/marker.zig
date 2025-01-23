@@ -1,7 +1,7 @@
 // purpose: print the marker
 const std = @import("std");
 
-pub fn printShellMarker(allocater: std.mem.Allocator) !void {
+pub fn printShellMarker(allocater: std.mem.Allocator, psMarker: *std.ArrayList([]u8)) !void {
     const stdout = std.io.getStdOut().writer();
     try printShellMarkDir(allocater);
     try stdout.print("zi~> ", .{});
@@ -22,5 +22,5 @@ fn printShellMarkDir(allocater: std.mem.Allocator) !void {
     if (topPathName.?.len == 0) {
         topPathName = "/";
     }
-    try stdout.print("[{s}] ", .{topPathName.?});
+    try stdout.print("{s} ", .{topPathName.?});
 }

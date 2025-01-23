@@ -75,16 +75,58 @@ pub fn runZiFile(path: []const u8, allocater: std.mem.Allocator, envVarMap: *std
                 return 1;
             }
 
-            const newVarVal: []const u8 = tokenList.items[2];
             const newVarKey: []const u8 = tokenList.items[0][indexOfMarker.? + 4 ..];
 
+            var newShortenVal = ArrayList(u8).init(allocater);
+            defer newShortenVal.deinit();
+
+            for (tokenList.items[2..]) |item| {
+                if (!std.mem.eql(u8, tokenList.items[2], item)) {
+                    try newShortenVal.appendSlice(" ");
+                }
+                try newShortenVal.appendSlice(item);
+            }
+
             // btw this gets deallocated later
-            const clonedVarVal = try allocater.alloc(u8, newVarVal.len);
+            const clonedVarVal = try allocater.alloc(u8, newShortenVal.items.len);
             const clonedVarKey = try allocater.alloc(u8, newVarKey.len);
-            std.mem.copyForwards(u8, clonedVarVal, @constCast(newVarVal));
+            std.mem.copyForwards(u8, clonedVarVal, @constCast(newShortenVal.items));
             std.mem.copyForwards(u8, clonedVarKey, @constCast(newVarKey));
 
             try envVarMap.put(clonedVarKey, clonedVarVal);
+        } else if (std.mem.startsWith(u8, line, "@PS1")) {
+            var tokenList = try tokenize(line, allocater);
+
+            defer tokenList.deinit();
+
+            const indexOfMarker: ?usize = std.mem.indexOf(u8, tokenList.items[0], "@PS1");
+            if (indexOfMarker == null) {
+                try stdout.print("zi interpreter error:\n\n unknown error please make a github issue with the .zi file attached\n\n", .{});
+                return 1;
+            }
+
+            if (tokenList.items.len == 1 or !std.mem.eql(u8, tokenList.items[1], "=")) {
+                try stdout.print("zi interpreter error:\n\nexpected: = after: {s}\n\n", .{tokenList.items[0]});
+                return 1;
+            }
+
+            if (tokenList.items.len < 3) {
+                try stdout.print("zi interpreter error:\n\nexpected: (value) after: =\n\n", .{});
+                return 1;
+            }
+
+            var newPsVal = ArrayList(u8).init(allocater);
+            defer newPsVal.deinit();
+
+            for (tokenList.items[2..]) |item| {
+                if (!std.mem.eql(u8, tokenList.items[2], item)) {
+                    try newPsVal.appendSlice(" ");
+                }
+
+                try newPsVal.appendSlice(item);
+            }
+
+            try stdout.print("{s}", .{newPsVal.items});
         } else if (std.mem.startsWith(u8, line, "@shorten")) {
             var tokenList = try tokenize(line, allocater);
 

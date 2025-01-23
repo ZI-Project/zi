@@ -16,9 +16,11 @@ pub fn shell() !void {
     defer _ = gpa.deinit();
     const allocater = gpa.allocator();
 
+    var psMarker = std.ArrayList([]u8).init(allocater);
     var envVars = std.StringHashMap([]u8).init(allocater);
     var shortens = std.StringHashMap([]u8).init(allocater);
     defer {
+        psMarker.deinit();
         envVars.deinit();
         shortens.deinit();
     }
