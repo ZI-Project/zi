@@ -2,7 +2,7 @@
 const std = @import("std");
 const marker = @import("../utils/marker.zig");
 
-var defaultPWD: []const u8 = "/home";
+var defaultPWD: []const u8 = "/";
 
 pub fn cd(input: []u8, allocater: std.mem.Allocator, printMarker: bool, map: *std.StringHashMap([]u8)) !void {
     var args = std.mem.split(u8, input, " ");
