@@ -10,7 +10,7 @@ const file = @import("../utils/file.zig");
 // @constCast is everywhere lol
 
 // the u8 is not a char it is return code
-pub fn runZiFile(path: []const u8, allocater: std.mem.Allocator, envVarMap: *std.StringHashMap([]u8), shortens: *std.StringHashMap([]u8)) !u8 {
+pub fn runZiFile(path: []const u8, allocater: std.mem.Allocator, envVarMap: *std.StringHashMap([]u8), shortens: *std.StringHashMap([]u8), psMarker: *std.ArrayList(u8)) !u8 {
     const stdout = std.io.getStdOut().writer();
 
     if (!try file.fileExists(path)) {
@@ -26,7 +26,7 @@ pub fn runZiFile(path: []const u8, allocater: std.mem.Allocator, envVarMap: *std
         if (std.mem.startsWith(u8, line, "exit")) {
             try exit.exit();
         } else if (std.mem.startsWith(u8, line, "cd")) {
-            cd.cd(@constCast(line), allocater, false, envVarMap) catch |err| {
+            cd.cd(@constCast(line), allocater, false, envVarMap, psMarker) catch |err| {
                 try stdout.print("zi interpreter error:\n\ncd returned: {}\n\n", .{err});
             };
         } else if (std.mem.startsWith(u8, line, "@defaultPWD")) {
@@ -126,7 +126,7 @@ pub fn runZiFile(path: []const u8, allocater: std.mem.Allocator, envVarMap: *std
                 try newPsVal.appendSlice(item);
             }
 
-            try stdout.print("{s}", .{newPsVal.items});
+            try psMarker.appendSlice(newPsVal.items);
         } else if (std.mem.startsWith(u8, line, "@shorten")) {
             var tokenList = try tokenize(line, allocater);
 
@@ -172,7 +172,7 @@ pub fn runZiFile(path: []const u8, allocater: std.mem.Allocator, envVarMap: *std
         } else if (line[0] == '#') {
             continue;
         } else {
-            execute.execute(@constCast(line), allocater, false, envVarMap) catch |err| {
+            execute.execute(@constCast(line), allocater, false, envVarMap, psMarker) catch |err| {
                 try stdout.print("zi interpreter error:\n\nexecuted: {s} and it returned {}\n\n", .{ line, err });
                 return 1;
             };

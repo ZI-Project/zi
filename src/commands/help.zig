@@ -3,7 +3,7 @@ const std = @import("std");
 const marker = @import("../utils/marker.zig");
 const ArrayList = std.ArrayList;
 
-pub fn help(allocater: std.mem.Allocator) !void {
+pub fn help(allocater: std.mem.Allocator, psMarker: *std.ArrayList(u8)) !void {
     const stdout = std.io.getStdOut().writer();
     try stdout.print("Help:\n", .{});
 
@@ -20,5 +20,5 @@ pub fn help(allocater: std.mem.Allocator) !void {
         try stdout.print("{s}\n", .{file.basename});
     }
 
-    try marker.printShellMarker(allocater);
+    try marker.printShellMarker(allocater, psMarker);
 }

@@ -3,7 +3,7 @@ const std = @import("std");
 const ChildProcess = std.process.Child;
 const marker = @import("marker.zig");
 
-pub fn execute(input: []u8, allocater: std.mem.Allocator, useMarker: bool, map: *std.StringHashMap([]u8)) !void {
+pub fn execute(input: []u8, allocater: std.mem.Allocator, useMarker: bool, map: *std.StringHashMap([]u8), psMarker: *std.ArrayList(u8)) !void {
     var cmdArgs = std.mem.split(u8, input, " ");
     var args = std.ArrayList([]const u8).init(allocater);
     defer args.deinit();
@@ -48,6 +48,6 @@ pub fn execute(input: []u8, allocater: std.mem.Allocator, useMarker: bool, map: 
         }
     };
     if (useMarker) {
-        try marker.printShellMarker(allocater);
+        try marker.printShellMarker(allocater, psMarker);
     }
 }

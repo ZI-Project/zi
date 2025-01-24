@@ -16,7 +16,7 @@ pub fn shell() !void {
     defer _ = gpa.deinit();
     const allocater = gpa.allocator();
 
-    var psMarker = std.ArrayList([]u8).init(allocater);
+    var psMarker = std.ArrayList(u8).init(allocater);
     var envVars = std.StringHashMap([]u8).init(allocater);
     var shortens = std.StringHashMap([]u8).init(allocater);
     defer {
@@ -37,21 +37,21 @@ pub fn shell() !void {
     }
 
     if (argsList.items.len >= 2) {
-        if (try interpreter.runZiFile(argsList.items[1], allocater, &envVars, &shortens) > 0) {
+        if (try interpreter.runZiFile(argsList.items[1], allocater, &envVars, &shortens, &psMarker) > 0) {
             try stdout.print("following errors above occurred in file: {s}\n", .{argsList.items[1]});
         }
         try exit.exit();
     }
-    try config.init(allocater, &envVars, &shortens);
+    try config.init(allocater, &envVars, &shortens, &psMarker);
 
     try history.initHistory(allocater);
-    try marker.printShellMarker(allocater);
+    try marker.printShellMarker(allocater, &psMarker);
     while (true) {
         const input: []u8 = try stdin.readUntilDelimiterAlloc(allocater, '\n', 10000);
         defer allocater.free(input);
 
         if (input.len == 0) {
-            try marker.printShellMarker(allocater);
+            try marker.printShellMarker(allocater, &psMarker);
             continue;
         }
 
@@ -61,12 +61,12 @@ pub fn shell() !void {
         }
 
         if (std.mem.count(u8, input, "cd") > 0) {
-            cd.cd(input, allocater, true, &envVars) catch |err| {
+            cd.cd(input, allocater, true, &envVars, &psMarker) catch |err| {
                 try stdout.print("Unknown Error: {}\n", .{err});
-                try marker.printShellMarker(allocater);
+                try marker.printShellMarker(allocater, &psMarker);
             };
         } else if (std.mem.eql(u8, input, "help")) {
-            try help.help(allocater);
+            try help.help(allocater, &psMarker);
         } else {
             var execInput: ?[]const u8 = undefined;
             if (shortens.get(input)) |val| {
@@ -74,9 +74,9 @@ pub fn shell() !void {
             } else {
                 execInput = input;
             }
-            execute.execute(@constCast(execInput.?), allocater, true, &envVars) catch {
+            execute.execute(@constCast(execInput.?), allocater, true, &envVars, &psMarker) catch {
                 try stdout.print("Error Command Not Found\n", .{});
-                try marker.printShellMarker(allocater);
+                try marker.printShellMarker(allocater, &psMarker);
             };
         }
     }

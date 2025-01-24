@@ -4,7 +4,7 @@ const marker = @import("../utils/marker.zig");
 
 var defaultPWD: []const u8 = "/";
 
-pub fn cd(input: []u8, allocater: std.mem.Allocator, printMarker: bool, map: *std.StringHashMap([]u8)) !void {
+pub fn cd(input: []u8, allocater: std.mem.Allocator, printMarker: bool, map: *std.StringHashMap([]u8), psMarker: *std.ArrayList(u8)) !void {
     var args = std.mem.split(u8, input, " ");
     while (args.next()) |arg| {
         if (std.mem.eql(u8, arg, "cd")) {
@@ -59,7 +59,7 @@ pub fn cd(input: []u8, allocater: std.mem.Allocator, printMarker: bool, map: *st
         }
     }
     if (printMarker) {
-        try marker.printShellMarker(allocater);
+        try marker.printShellMarker(allocater, psMarker);
     }
 }
 
