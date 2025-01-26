@@ -7,6 +7,7 @@ const config = @import("utils/config.zig");
 const execute = @import("utils/execute.zig");
 const help = @import("commands/help.zig");
 const history = @import("utils/history.zig");
+const historyCMD = @import("commands/history.zig");
 const interpreter = @import("interpreter/interpreter.zig");
 const process = std.process;
 const ArrayList = std.ArrayList;
@@ -67,6 +68,9 @@ pub fn shell() !void {
             };
         } else if (std.mem.eql(u8, input, "help")) {
             try help.help(allocater, &psMarker);
+        } else if (std.mem.startsWith(u8, input, "history")) {
+            try historyCMD.history(input, allocater);
+            try marker.printShellMarker(allocater, &psMarker);
         } else {
             var execInput: ?[]const u8 = undefined;
             if (shortens.get(input)) |val| {
@@ -79,6 +83,8 @@ pub fn shell() !void {
                 try marker.printShellMarker(allocater, &psMarker);
             };
         }
+
+        try history.addToHistory(allocater, input);
     }
 }
 
