@@ -14,7 +14,7 @@ pub fn runZiFile(path: []const u8, allocater: std.mem.Allocator, envVarMap: *std
     const stdout = std.io.getStdOut().writer();
 
     if (!try file.fileExists(path)) {
-        try stdout.print("file does not exist", .{});
+        try stdout.print("zi interpreter error:\n\nfile does not exist\n", .{});
         return 1;
     }
     const ziFile = try file.fileReadAll(path, allocater);
