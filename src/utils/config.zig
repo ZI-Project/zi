@@ -23,7 +23,7 @@ pub fn init(allocater: std.mem.Allocator, envVarList: *std.StringHashMap([]u8), 
 
     _ = std.fs.cwd().makeDir(ziDir) catch {};
     if (!try file.fileExists(configDir)) {
-        const defaultConfig = "@defaultPWD = $HOME\n@shortenls = ls --color=auto\n";
+        const defaultConfig = "@defaultPWD = $HOME\n@PS1 = \"[$CWD] zi~>\"\n@shortenls = ls --color=auto\n";
         try file.fileWrite(configDir, defaultConfig);
     } else {
         if (try interpreter.runZiFile(configDir, allocater, envVarList, shortens, psMarker) > 0) {
