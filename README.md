@@ -8,6 +8,21 @@ banner made by [@Sophed](https://github.com/Sophed)
 
 **Docs can be found**: [Here](https://github.com/ZI-Project/zi/wiki)
 
+## Support:
+
+**:x:: no support**
+
+**⚠️: community support**
+
+**✔: full support**
+
+| Operating System  | Supported     |
+| -------------     | ------------- |
+| Windows           | :x:           |
+| Mac               | ⚠️             |
+| FreeBSD           | ✔             |
+| Linux             | ✔             |
+
 ## Features:
 * Interpreter to run .zi files
 * Easy to configure
