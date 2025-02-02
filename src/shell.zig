@@ -37,7 +37,7 @@ pub fn shell() !void {
         try argsList.append(arg);
     }
 
-    if (argsList.items.len >= 2) {
+    if (argsList.items.len == 2) {
         if (try interpreter.runZiFile(argsList.items[1], allocater, &envVars, &shortens, &psMarker) > 0) {
             try stdout.print("following errors above occurred in file: {s}\n", .{argsList.items[1]});
         }
@@ -58,6 +58,8 @@ pub fn shell() !void {
 
         if (std.mem.eql(u8, input, "exit")) {
             // RELEASE ME
+            try exit.exit();
+        } else if (std.mem.eql(u8, input, ":q")) {
             try exit.exit();
         }
 
