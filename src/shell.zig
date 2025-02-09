@@ -59,8 +59,6 @@ pub fn shell() !void {
         if (std.mem.eql(u8, input, "exit")) {
             // RELEASE ME
             try exit.exit();
-        } else if (std.mem.eql(u8, input, ":q")) {
-            try exit.exit();
         }
 
         if (std.mem.count(u8, input, "cd") > 0) {
