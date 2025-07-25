@@ -1,0 +1,1 @@
+# Interpreter for .zi files
