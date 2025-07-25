@@ -1,3 +1,5 @@
+# REWRITE IN PROGRESS
+
 ![zi-banner-smol](https://github.com/user-attachments/assets/12cfa71b-721b-4a7e-84c7-159b8220b97a)
 
 banner made by [@Sophed](https://github.com/Sophed)
